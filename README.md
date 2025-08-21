@@ -1,6 +1,7 @@
 # CS670: Cryptographic Techniques for Privacy Preservation
 
-
+## Quizzes
+- First Quiz will take place on 28th August, 2025, Thursday, 9 AM. The venue will be RM101. 
 ## Schedule
 
 | Date       | Topic                  | Lecture Notes             | Optional Reading/Viewing         |
