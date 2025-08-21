@@ -12,3 +12,4 @@
 | 09-08-2025, Saturday | MPC on Secret Shares    |         |             |
 | 11-08-2025, Monday   |  Oblivious Transfer         |         |             |
 | 14-08-2025, Thursday   | Random OT and OT Extension         |         |             |
+| 18-08-2025, Monday   | Introduction to Garbled Circuits         |         |             |
