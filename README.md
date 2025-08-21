@@ -13,3 +13,4 @@
 | 11-08-2025, Monday   |  Oblivious Transfer         |         |             |
 | 14-08-2025, Thursday   | Random OT and OT Extension         |         |             |
 | 18-08-2025, Monday   | Introduction to Garbled Circuits         |         |             |
+| 21-08-2025, Thursday   | Class Cancelled because Adithya is travelling         |         |             |
