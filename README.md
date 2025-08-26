@@ -4,7 +4,7 @@
 [Pragmatic MPC](https://securecomputation.org)
 
 # Similar Courses
-- [University of Waterloo, Ian Goldberg] (https://crysp.uwaterloo.ca/courses/privcc/s24/schedule.html)
+- [University of Waterloo, Ian Goldberg](https://crysp.uwaterloo.ca/courses/privcc/s24/schedule.html)
 - [NPTEL, Ashish Chowdhury](https://onlinecourses.nptel.ac.in/noc21_cs91/preview)
 
 
