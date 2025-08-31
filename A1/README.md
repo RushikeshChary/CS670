@@ -1,3 +1,3 @@
-You can run the code as:
-`docker-compose build`
-`docker-compose up`
+- You can run the code as:
+- `docker-compose build`
+- `docker-compose up`
