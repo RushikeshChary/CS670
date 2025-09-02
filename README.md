@@ -23,4 +23,6 @@
 | 18-08-2025, Monday   | Introduction to Garbled Circuits         |         |          [Garbled Circuits](https://web.mit.edu/sonka89/www/papers/2017ygc.pdf)   | 
 | 21-08-2025, Thursday   | Class Cancelled because Adithya is travelling         |         |             |
 | 25-08-2025, Monday   | Optimizations in Garbled Circuits         |         | [Garbled Circuits by Mike Rosulek](https://www.youtube.com/watch?v=FTxh908u9y8&t=2001s)            |
+| 28-08-2025, Thursday   | Quiz 1         |         |            |
+| 01-09-2025, Monday   | Introduction to Secure Memory Access         |         |            |
 
