@@ -25,7 +25,7 @@
 | 25-08-2025, Monday   | Optimizations in Garbled Circuits         |         | [Garbled Circuits by Mike Rosulek](https://www.youtube.com/watch?v=FTxh908u9y8&t=2001s)            |
 | 28-08-2025, Thursday   | Quiz 1         |         |            |
 | 01-09-2025, Monday   | Introduction to Secure Memory Access         |         |            |
-| 04-09-2025, Thursday   |           |         |            |
+| 04-09-2025, Thursday   |   Distributed Point Functions        |         |            |
 | 08-09-2025, Monday  |           |         |            |
 | 11-09-2025, Thursday   |           |         |            |
 | 15-09-2025, Monday   |           |         |            |
