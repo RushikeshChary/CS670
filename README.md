@@ -26,6 +26,6 @@
 | 28-08-2025, Thursday   | Quiz 1         |         |            |
 | 01-09-2025, Monday   | Introduction to Secure Memory Access         |         |            |
 | 04-09-2025, Thursday   |   Distributed Point Functions        |         |            |
-| 08-09-2025, Monday  |           |         |            |
+| 08-09-2025, Monday  |  DPFs via MPC         |         |            |
 | 11-09-2025, Thursday   |           |         |            |
 | 15-09-2025, Monday   |           |         |            |
