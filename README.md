@@ -28,5 +28,5 @@
 | 04-09-2025, Thursday   |   Distributed Point Functions        |         | [Lecture by Ian Goldberg](https://crysp.uwaterloo.ca/courses/privcc/s24/video/lec08.m4v),  Section 2.1 from [Duoram](https://www.usenix.org/system/files/usenixsecurity23-vadapalli.pdf)       |
 | 08-09-2025, Monday  |  DPFs via MPC         |         |  Appendix C from  [Duoram](https://www.usenix.org/system/files/usenixsecurity23-vadapalli.pdf), [Floram Talk](https://www.youtube.com/watch?v=XXtlS72sHQY&t=84s) from 8:20         |
 | 11-09-2025, Thursday   | Read Only and Write Only Memory; Refreshing Blinds          |         |   [Duoram](https://www.usenix.org/system/files/usenixsecurity23-vadapalli.pdf)         |
-| 13-09-2025, Saturdday   |  Extra Class Compensation for 21-08-2025, Midsem Prep         |         |            |
+| 13-09-2025, Saturday   |  Extra Class Compensation for 21-08-2025, Midsem Prep         |         |            |
 | 15-09-2025, Monday   |  Midsem week         |         |            |
