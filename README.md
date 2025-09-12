@@ -30,3 +30,8 @@
 | 11-09-2025, Thursday   | Read Only and Write Only Memory; Refreshing Blinds          |         |   [Duoram](https://www.usenix.org/system/files/usenixsecurity23-vadapalli.pdf)         |
 | 13-09-2025, Saturday   |  Extra Class Compensation for 21-08-2025, Midsem Prep         |         |            |
 | 15-09-2025, Monday   |  Midsem week         |         |            |
+| 18-09-2025, Thursday   |  Midsem week         |         |            |
+| 22-09-2025, Monday   |           |         |            |
+| 25-09-2025, Thursday   |           |         |            |
+| 29-09-2025, Monday   |  Midsem Break         |         |            |
+| 02-10-2025, Thursday   |  Midsem Break         |         |            |
