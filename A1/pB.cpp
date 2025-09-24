@@ -4,6 +4,75 @@
 #error "ROLE must be defined as ROLE_p0 or ROLE_p1"
 #endif
 
+// Matrix structure for easy initialization, usage and randomization
+struct Matrix {
+    std::vector<std::vector<uint32_t>> data;
+
+    Matrix(int rows, int cols) {
+        data.assign(rows, std::vector<uint32_t>(cols));
+    }
+
+    uint32_t& operator()(int i, int j) { return data[i][j]; }
+    const uint32_t& operator()(int i, int j) const { return data[i][j]; }
+
+    int rows() const { return data.size(); }
+    int cols() const { return data.empty() ? 0 : data[0].size(); }
+
+    // Function to fill the matrix with random values
+    void random_fill() {
+        for (int i = 0; i < rows(); i++) {
+            for (int j = 0; j < cols(); j++) {
+                data[i][j] = random_uint32();
+            }
+        }
+    }
+
+    // Function to return column vector given column index
+    std::vector<uint32_t> get_column(int col_idx) const {
+        std::vector<uint32_t> col(rows());
+        for (int i = 0; i < rows(); i++) {
+            col[i] = data[i][col_idx];
+        }
+        return col;
+    }
+
+    // Function to print the matrix (for debugging)
+    void print(const std::string& name) const {
+        std::cout << name << " (" << rows() << "x" << cols() << "):\n";
+        for (const auto& row : data) {
+            for (auto val : row) std::cout << val << " ";
+            std::cout << "\n";
+        }
+    }
+};
+
+
+// Structure to store input data and queries
+struct InputData {
+    int m, n, k, Q;
+    std::vector<std::pair<int,int>> queries;
+};
+
+InputData read_file(const std::string& filename) {
+    std::ifstream in(filename);
+    if (!in) {
+        throw std::runtime_error("Error opening file " + filename);
+    }
+
+    InputData data;
+    in >> data.m >> data.n >> data.k >> data.Q;
+
+    data.queries.resize(data.Q);
+    for (int q = 0; q < data.Q; q++) {
+        int i, jshare;
+        in >> i >> jshare;
+        data.queries[q] = {i, jshare};
+    }
+    return data;
+}
+
+
+
 // ----------------------- Helper coroutines -----------------------
 awaitable<void> send_coroutine(tcp::socket& sock, uint32_t value) {
     co_await boost::asio::async_write(sock, boost::asio::buffer(&value, sizeof(value)), use_awaitable);
@@ -79,6 +148,28 @@ awaitable<void> run(boost::asio::io_context& io_context) {
 
     // Step 3: blinded exchange
     co_await exchange_blinded(std::move(peer_sock), received_from_p2);
+
+    // Read input data from files
+#ifdef ROLE_p0
+    InputData input = read_file("f1.txt");
+    Matrix U0(input.m, input.k);
+    U0.random_fill();
+    U0.print("U0");
+
+    Matrix V0(input.n, input.k);
+    V0.random_fill();
+    V0.print("V0");
+
+#else
+    InputData input = read_file("f2.txt");
+    Matrix U1(input.m, input.k);
+    U1.random_fill();
+    U1.print("U1");
+
+    Matrix V1(input.n, input.k);
+    V1.random_fill();
+    V1.print("V1");
+#endif
 
     co_return;
 }
