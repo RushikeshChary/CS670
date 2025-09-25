@@ -1,10 +1,16 @@
+#include <fstream>   // for std::ifstream
+#include <iostream>  // for std::cout, std::endl
+#include <vector>    // for std::vector
+#include <string>    // for std::string
+#include <cstdint>   // for uint32_t
+#include <stdexcept> // for std::runtime_error
 #include "common.hpp"
 
 #if !defined(ROLE_p0) && !defined(ROLE_p1)
 #error "ROLE must be defined as ROLE_p0 or ROLE_p1"
 #endif
 
-// Matrix structure for easy initialization, usage and randomization
+// // Matrix structure for easy initialization, usage and randomization
 struct Matrix {
     std::vector<std::vector<uint32_t>> data;
 
@@ -44,7 +50,34 @@ struct Matrix {
             std::cout << "\n";
         }
     }
+
+    // elementwise addition: this + other
+    Matrix operator+(const Matrix& other) const {
+        if (rows() != other.rows() || cols() != other.cols()) {
+            throw std::invalid_argument("Matrix dimensions must match for addition");
+        }
+        Matrix result(rows(), cols());
+        for (int i = 0; i < rows(); i++) {
+            for (int j = 0; j < cols(); j++) {
+                result(i, j) = data[i][j] + other(i, j);
+            }
+        }
+        return result;
+    }
 };
+
+
+std::vector<uint32_t> rotate_vector(const std::vector<uint32_t>& vec, int shift) {
+    int n = (int)vec.size();
+    std::vector<uint32_t> res(n);
+    if (n == 0) return res;
+    // Normalize: positive => right rotation, negative => left rotation
+    shift = ((shift % n) + n) % n;
+    for (int i = 0; i < n; ++i) {
+        res[(i + shift) % n] = vec[i];
+    }
+    return res;
+}
 
 
 // Structure to store input data and queries
@@ -81,6 +114,15 @@ awaitable<void> send_coroutine(tcp::socket& sock, uint32_t value) {
 awaitable<void> recv_coroutine(tcp::socket& sock, uint32_t& out) {
     co_await boost::asio::async_read(sock, boost::asio::buffer(&out, sizeof(out)), use_awaitable);
 }
+
+// Receive a vector<uint32_t> of length `len` from socket
+awaitable<void> recv_vector(tcp::socket& sock, std::vector<uint32_t>& out) {
+    // assumes out.size() == len
+    co_await boost::asio::async_read(sock,
+        boost::asio::buffer(out.data(), out.size() * sizeof(uint32_t)),
+        boost::asio::use_awaitable);
+}
+
 
 // Blinded exchange between peers
 awaitable<void> exchange_blinded(tcp::socket socket, uint32_t value_to_send) {
@@ -133,42 +175,121 @@ awaitable<void> run(boost::asio::io_context& io_context) {
 
     // Step 1: connect to P2 and receive random value
     tcp::socket server_sock = co_await setup_server_connection(io_context, resolver);
-    uint32_t received_from_p2 = co_await recv_from_P2(server_sock);
+    // uint32_t received_from_p2 = co_await recv_from_P2(server_sock);
 
-    std::cout << (
-#ifdef ROLE_p0
-        "P0"
-#else
-        "P1"
-#endif
-    ) << " received from P2: " << received_from_p2 << std::endl;
+//     std::cout << (
+// #ifdef ROLE_p0
+//         "P0"
+// #else
+//         "P1"
+// #endif
+//     ) << " received from P2: " << received_from_p2 << std::endl;
 
     // Step 2: connect to peer (P0 <-> P1)
     tcp::socket peer_sock = co_await setup_peer_connection(io_context, resolver);
 
     // Step 3: blinded exchange
-    co_await exchange_blinded(std::move(peer_sock), received_from_p2);
+    // co_await exchange_blinded(std::move(peer_sock), received_from_p2);
 
-    // Read input data from files
+    
 #ifdef ROLE_p0
+    // Read input data from files
     InputData input = read_file("f1.txt");
     Matrix U0(input.m, input.k);
     U0.random_fill();
-    U0.print("U0");
+    // U0.print("U0");
 
     Matrix V0(input.n, input.k);
     V0.random_fill();
-    V0.print("V0");
+    Matrix R0(input.m, input.k);
+    R0.random_fill();
+    // V0.print("V0");
+
+    // Prepare container to store this party's e_j shares (one vector per query)
+    std::vector<std::vector<uint32_t>> v_j_shares; 
+    v_j_shares.reserve(input.Q);
+
+    
+    for (int q = 0; q < input.Q; q++) {
+        int i = input.queries[q].first;
+        int jshare = input.queries[q].second;
+        // Now, lets start with obtaining standard-basis vector share of v_j using rotation trick.
+         // 1) Receive vector-share r (length n) and k_share from P2
+        std::vector<uint32_t> r_share(input.n);
+        co_await recv_vector(server_sock, r_share);         // read vector-share (n * uint32_t)
+        
+        uint32_t k_share;
+        co_await recv_coroutine(server_sock, k_share);  // read k-share as uint32_t
+        std::cout<<"recieved k share = "<<k_share<<std::endl;
+
+        uint32_t local_diff = jshare - k_share;
+        co_await send_coroutine(peer_sock, static_cast<uint32_t>(local_diff));
+        std::cout<<"sent local_diff = "<<local_diff<<std::endl;
+
+        uint32_t peer_diff;
+        co_await recv_coroutine(peer_sock, peer_diff);
+        std::cout<<"peer_diff recieved = "<<peer_diff<<std::endl;
+
+        int shift = 0;
+        shift = local_diff + (static_cast<int>(peer_diff));
+        std::cout<<"shift is "<<shift<<std::endl;
+
+        std::vector<uint32_t> vj_share = rotate_vector(r_share, shift);
+        v_j_shares.push_back(std::move(vj_share));
+        
+        
+    }
 
 #else
     InputData input = read_file("f2.txt");
     Matrix U1(input.m, input.k);
     U1.random_fill();
-    U1.print("U1");
+    // U1.print("U1");
 
     Matrix V1(input.n, input.k);
     V1.random_fill();
-    V1.print("V1");
+    Matrix R1(input.m, input.k);
+    R1.random_fill();
+    // V1.print("V1");
+
+    // Prepare container to store this party's e_j shares (one vector per query)
+    std::vector<std::vector<uint32_t>> v_j_shares; 
+    v_j_shares.reserve(input.Q);
+
+    
+    for (int q = 0; q < input.Q; q++) {
+        int i = input.queries[q].first;
+        int jshare = input.queries[q].second;
+        // Now, lets start with obtaining standard-basis vector share of v_j using rotation trick.
+         // 1) Receive vector-share r (length n) and k_share from P2
+        std::vector<uint32_t> r_share(input.n);
+        co_await recv_vector(server_sock, r_share);         // read vector-share (n * uint32_t)
+        
+        uint32_t k_share;
+        co_await recv_coroutine(server_sock, k_share);  // read k-share as uint32_t
+        std::cout<<"recieved k share = "<<k_share<<std::endl;
+
+        uint32_t local_diff = jshare - k_share;
+        co_await send_coroutine(peer_sock, static_cast<uint32_t>(local_diff));
+        std::cout<<"sent local_diff = "<<local_diff<<std::endl;
+
+        uint32_t peer_diff;
+        co_await recv_coroutine(peer_sock, peer_diff);
+        std::cout<<"peer_diff recieved = "<<peer_diff<<std::endl;
+
+        int shift = 0;
+        shift = local_diff + (static_cast<int>(peer_diff));
+        std::cout<<"shift is "<<shift<<std::endl;
+
+        std::vector<uint32_t> vj_share = rotate_vector(r_share, shift);
+        v_j_shares.push_back(std::move(vj_share));
+
+
+        // Now,the time comes to share masked database.
+        
+        
+        
+    }
 #endif
 
     co_return;

@@ -1,0 +1,72 @@
+# Assignment - 1
+
+Let us follow this plan:
+
+## gen_queries.cpp:
+
+Given parameters like m,n,k in the command line for this file, it will generate 2 files - say f1, f2.
+
+They have m, n, k, Q and next Q lines will be queries like {i,j0} and {i,j1} in both files.
+
+P0 & P1 will read the contents of these files independently and create their shares of U0, V0 and U1, V1 randomly and also store the shares of .
+
+************* WE ARE HERE *********************
+
+Now, for each query {(i,j0); (i,j1)}, we can do the following:
+
+→ Perform rotation trick with the help of P2 to get shares of standard basis vector of j.
+p2 has sent k and e_k shares to both the parties.
+Now, they have to recieve these values in order and do the following:
+(i) compute i_b - k and share with each other.
+(ii) After recieving the share from other party, add it with your own share to get (i - k) value.
+(iii) Now, do rotation of you own vector share to get vector share of e_i.
+
+Now we have standard-basis vector share of v_j with each other.
+Then each party p0 and p1 have choose some random matrix same size of V (say r0 and r1) and use them to blind shares of V and exchange with each other.
+After recieving the blinded database share, blind it again with your chosen r_b. Now both parties have perfect DORAM read environment.
+To get shares of V_j:
+They already have vector shares of e_j - say f1 and f2.
+(i) dot product <D+r0+r1,f_1> for p0 and <D+r0+r1,f_2> for p1. - 
+Note that D+r0+r1 is a matrix... So you would have to do dotprodut with each column and store those final values to form the final vector share.
+This gives them vector shares of D[j]+r0[j]+r1[j].
+To unmask the shares, do the following:
+(i) Consider r0+r1 as x. Now, we have shares of this x with both parties. Similarly, we have f0 and f1 which are shares of e_j.
+Note again its matrix... so look at each column of this matrix as shares.
+Therefore, simply perform Du-Atullah dotproduct with each column of the matrix and f_i. Which will result in shares of vector r0[j]+r1[j].
+Then both the parties independently subtract that value from the previous vector to get shares of D[j].
+
+
+*************************************
+
+→ Now blind the database shares of V and exchange with each other. Now, in way, both the parties have entire masked - V database, which can be used to perform DORAM read.
+
+→ **The problem here is that it is not clear to me how to demask the final shared output.**
+
+*************************************
+
+Now, to compute z: (i.e., delta)
+Since both parties know i, they can get u_i through U0[i].
+Let see what p0 has:
+Then perform Du-Atullah dotproduct - z1` = <ui_1,vj_1>
+then get z = 1 - <ui_1,vj_1>
+Now to update the final ui shares correctly, the final sum of shares should result in ui` = ui - vj.(z)
+Let us look at the second term -- i.e., scalar multiplication of vector.
+That can be achieved by performing Du-Atullah for each element in vj. i.e., both the parties have share of vector vj that means each element is also a share, similarly, they have shares of z
+Now obtain new share ui` = ui - (vj).(z)
+
+
+
+
+
+Now let us see how Du-Atullah protocol is implemented:
+(i) with normal integers:
+
+
+(ii) with vectors of integers:
+
+
+
+
+
+
+

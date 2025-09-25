@@ -1,6 +1,19 @@
 #include <bits/stdc++.h>
-#include <common.hpp>
+#include <random>
+#include <cstdint>
 using namespace std;
+
+
+// Returns a non-deterministic random 32-bit unsigned integer
+uint32_t random_uint32() {
+    static std::random_device rd;            // True random seed
+    static std::mt19937 gen(rd());           // Mersenne Twister engine
+    static std::uniform_int_distribution<uint32_t> dist(
+        0, std::numeric_limits<uint32_t>::max()
+    );
+    return dist(gen);
+}
+
 
 int main(int argc, char* argv[]) {
     if (argc < 5) {
