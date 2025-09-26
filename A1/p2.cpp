@@ -117,6 +117,7 @@ int main()
         for (int q = 0; q < Q; ++q) {
             // Firstly, let us get alpha shares(int) and e_alpha shares (1d vector).
             int alpha = rand_int(0, n - 1);
+            std::cout<<"Query "<<q<<": alpha = "<<alpha<<"\n";
             auto [alpha_p0, alpha_p1] = make_additive_shares_int(alpha);
             alpha_shares_p0.push_back(alpha_p0);
             alpha_shares_p1.push_back(alpha_p1);

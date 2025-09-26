@@ -162,8 +162,9 @@ awaitable<void> run(boost::asio::io_context& io_context) {
 #else
     ofs << "=== Role: P1 | Query " << i << " ===\n";
 #endif
-        log_vector(ofs, "e_alpha", share.e_alpha);
-        ofs << "alpha: " << share.alpha << "\n";
+        log_matrix(ofs, "User feature matrix u", share.u);
+        log_matrix(ofs, "Item feature matrix v", share.v);
+        log_matrix(ofs, "Random matrix r", share.r);
         // Here the protocol begins.
         // Step 1: Receive e_alpha share and alpha from server.
         // Now, let us start getting variables from server for performing rotation trick.
@@ -171,6 +172,8 @@ awaitable<void> run(boost::asio::io_context& io_context) {
         // std::cout<<"e_alpha recieved from p2\n";
         co_await recv_int32(server_sock, share.alpha);
         // std::cout<<"alpha recieved from p2\n";
+        log_vector(ofs, "e_alpha", share.e_alpha);
+        ofs << "alpha: " << share.alpha << "\n";
 
 
 
@@ -179,9 +182,9 @@ awaitable<void> run(boost::asio::io_context& io_context) {
         // std::cout<<"local_diff sent to peer\n";
         co_await recv_int32(peer_sock, local_diff);
         // std::cout<<"local_diff recieved from peer\n";
-        int shift = local_diff + (item_index_share = share.alpha); // since both parties have same local_diff
+        int shift = local_diff + (item_index_share - share.alpha); // since both parties have same local_diff
         std::vector<int> e_j = rotate_cyclic(share.e_alpha, shift);
-        
+        ofs << "shift: "<< shift << "\n";
         log_vector(ofs, "e_j", e_j);
 
         // Step 2: Now, we have e_j share. Next, we need to share masked V database.
@@ -255,7 +258,7 @@ awaitable<void> run(boost::asio::io_context& io_context) {
             }
         }
         // Few more temparary variables.
-        std::vector<int> r_share = compute_v_share(e_j, y_dash);
+        std::vector<int> r_share = colwise_dot(e_j_matrix, y_dash);
         std::vector<int> second_term = colwise_dot(share.y_n, x_dash);
         for(int i = 0;i<k;i++) r_share[i] = r_share[i] - second_term[i] + share.gamma_n;
         log_vector(ofs, "r_share", r_share);
@@ -274,6 +277,9 @@ awaitable<void> run(boost::asio::io_context& io_context) {
         co_await recv_vector1d(server_sock, share.y_k);
         co_await recv_int32(server_sock, share.gamma_k);
         // std::cout<<"x_k, y_k, gamma_k recieved from p2\n";
+        log_vector(ofs, "x_k", share.x_k);
+        log_vector(ofs, "y_k", share.y_k);
+        ofs << "gamma_k: " << share.gamma_k << "\n";
         int inn_product;
         co_await MPC_DOTPRODUCT(peer_sock, share.x_k, share.y_k, share.gamma_k, share.u[user_index], v_j_share, inn_product);
         // Now lets get shares of delta:
@@ -283,17 +289,21 @@ awaitable<void> run(boost::asio::io_context& io_context) {
 #else
         delta = - inn_product;
 #endif
-        
+        ofs << "Inner product share: " << inn_product << "\n";
         // Now, let us go ahead with scalar dot product.
         co_await recv_vector1d(server_sock, share.scaler_x);
         co_await recv_vector1d(server_sock, share.scaler_y);
         co_await recv_vector1d(server_sock, share.scaler_gamma);
         // std::cout<<"Sizes: scaler_x, scaler_y, scaler_gamma recieved from p2 are: "<<share.scaler_x.size()<<" "<<share.scaler_y.size()<<" "<<share.scaler_gamma.size()<<"\n";
+        log_vector(ofs, "scaler_x", share.scaler_x);
+        log_vector(ofs, "scaler_y", share.scaler_y);
+        log_vector(ofs, "scaler_gamma", share.scaler_gamma);
         std::vector<int> result(k);
         co_await MPC_SCALAR_PRODUCT(peer_sock, share.scaler_x, share.scaler_y, share.scaler_gamma, v_j_share, delta, result);
 
         // Do the final update to user database now.
         share.u[user_index] = vec_add(share.u[user_index], result);
+        log_matrix(ofs, "Final updated user feature vector", share.u);
         std::cout<<"User database updated.\n";
     }
 
