@@ -220,12 +220,12 @@ awaitable<void> run(boost::asio::io_context& io_context) {
         // std::cout<<"x_n recieved from p2\n";
         co_await recv_vector2d(server_sock, share.y_n);
         // std::cout<<"y_n recieved from p2\n";
-        co_await recv_int32(server_sock, share.gamma_n);
+        co_await recv_vector1d(server_sock, share.gamma_n);
         // std::cout<<"gamma_n recieved from p2\n";
 
         log_matrix(ofs, "x_n", share.x_n);
         log_matrix(ofs, "y_n", share.y_n);
-        ofs << "gamma_n: " << share.gamma_n << "\n";
+        log_vector(ofs, "gamma_n", share.gamma_n);
 
         // Extra vectors to communicate:
         std::vector<std::vector<int>> x_dash(n, std::vector<int>(k));
@@ -260,7 +260,7 @@ awaitable<void> run(boost::asio::io_context& io_context) {
         // Few more temparary variables.
         std::vector<int> r_share = colwise_dot(e_j_matrix, y_dash);
         std::vector<int> second_term = colwise_dot(share.y_n, x_dash);
-        for(int i = 0;i<k;i++) r_share[i] = r_share[i] - second_term[i] + share.gamma_n;
+        for(int i = 0;i<k;i++) r_share[i] = r_share[i] - second_term[i] + share.gamma_n[i];
         log_vector(ofs, "r_share", r_share);
         // Now, r_share is the share of dot product. Now remove mask.
         for(int i = 0;i<k;i++) v_j_share[i] = v_j_share[i] - r_share[i];

@@ -5,7 +5,7 @@ using boost::asio::ip::tcp;
 
 int m,n,k,Q;
 // Send a number to a client
-boost::asio::awaitable<void> handle_client(tcp::socket socket, const std::string &name, const std::vector<std::vector<int>> &e_alpha, std::vector<int> &alpha, std::vector<std::vector<std::vector<int>>> &matrix_xn, std::vector<std::vector<std::vector<int>>> &matrix_yn, std::vector<int> & gamma_shares, std::vector<std::vector<int>> &mpc_vec_xk, std::vector<std::vector<int>> &mpc_vec_yk, std::vector<int> &mpc_gamma_shares, std::vector<std::vector<int>> &mpc_scaler_xk_shares, std::vector<std::vector<int>> &mpc_scaler_yk_shares, std::vector<std::vector<int>> &mpc_scaler_gamma_shares)
+boost::asio::awaitable<void> handle_client(tcp::socket socket, const std::string &name, const std::vector<std::vector<int>> &e_alpha, std::vector<int> &alpha, std::vector<std::vector<std::vector<int>>> &matrix_xn, std::vector<std::vector<std::vector<int>>> &matrix_yn, std::vector<std::vector<int>> & gamma_shares, std::vector<std::vector<int>> &mpc_vec_xk, std::vector<std::vector<int>> &mpc_vec_yk, std::vector<int> &mpc_gamma_shares, std::vector<std::vector<int>> &mpc_scaler_xk_shares, std::vector<std::vector<int>> &mpc_scaler_yk_shares, std::vector<std::vector<int>> &mpc_scaler_gamma_shares)
 {
     try {
         for (int q = 0; q < Q; ++q) {
@@ -19,7 +19,7 @@ boost::asio::awaitable<void> handle_client(tcp::socket socket, const std::string
             // std::cout<<"Sent x_n share to "<<name<<"\n";
             co_await send_vector2d(socket, matrix_yn[q]); // send y_n share (2d vector of size n * k)
             // std::cout<<"Sent y_n share to "<<name<<"\n";
-            co_await send_int32(socket, gamma_shares[q]); // send gamma share (1d vector of length k)
+            co_await send_vector1d(socket, gamma_shares[q]); // send gamma share (1d vector of length k)
             // std::cout<<"Sent gamma share to "<<name<<"\n";
 
             co_await send_vector1d(socket, mpc_vec_xk[q]); // send x_k share (1d vector of length k)
@@ -106,7 +106,8 @@ int main()
         std::vector<std::vector<int>> e_alpha_shares_p0, e_alpha_shares_p1; // each is Q vectors of length n
         std::vector<std::vector<std::vector<int>>> matrix_xn_shares_p0, matrix_xn_shares_p1; // each is Q matrices of size n * k (i.e., x_n)
         std::vector<std::vector<std::vector<int>>> matrix_yn_shares_p0, matrix_yn_shares_p1; // each is Q matrices of size n * k (i.e., x_n)
-        std::vector<int> gamma_shares_p0, gamma_shares_p1; // each is a vector of length k
+        std::vector<int> gamma_p0, gamma_p1; // each is a vector of length k
+        std::vector<std::vector<int>> gamma_shares_p0, gamma_shares_p1;
         std::vector<std::vector<int>> mpc_vec_xk_shares_p0, mpc_vec_xk_shares_p1; // each is a vector of length k
         std::vector<std::vector<int>> mpc_vec_yk_shares_p0, mpc_vec_yk_shares_p1; // each is a vector of length k
         int vec_gamma_k_p0, vec_gamma_k_p1; // each is a single int
@@ -140,16 +141,18 @@ int main()
             matrix_yn_shares_p1.push_back(mat_p1);
 
             // Now get gamma --> i.e., colwise dot product of x_n and y_n
-            gamma_shares_p0 = colwise_dot(matrix_xn_shares_p0[q], matrix_yn_shares_p1[q]);
-            gamma_shares_p1 = colwise_dot(matrix_xn_shares_p1[q], matrix_yn_shares_p0[q]);
+            gamma_p0 = colwise_dot(matrix_xn_shares_p0[q], matrix_yn_shares_p1[q]);
+            gamma_p1 = colwise_dot(matrix_xn_shares_p1[q], matrix_yn_shares_p0[q]);
+            
             // Add a random vector to gamma_p0 and subtract it from gamma_p1
             std::vector<int> gamma_mask(k);
             for(int i = 0;i<k;i++) gamma_mask[i] = rand_int();
             for(int i = 0;i<k;i++) {
-                gamma_shares_p0[i] += gamma_mask[i];
-                gamma_shares_p1[i] -= gamma_mask[i];
+                gamma_p0[i] += gamma_mask[i];
+                gamma_p1[i] -= gamma_mask[i];
             }
-
+            gamma_shares_p0.push_back(gamma_p0);
+            gamma_shares_p1.push_back(gamma_p1);
             // Now let us make vectors for MPC dotprouct.
             std::vector<int> mpc_dot_xk_p0(k), mpc_dot_xk_p1(k);
             std::vector<int> mpc_dot_yk_p0(k), mpc_dot_yk_p1(k);
