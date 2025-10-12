@@ -35,8 +35,8 @@
 | 25-09-2025, Thursday   |           |         |            |
 | 29-09-2025, Monday   |  Midsem Break         |         |            |
 | 02-10-2025, Thursday   |  Midsem Break         |         |            |
-| 06-10-2025, Monday   |           |         |            |
-| 09-10-2025, Thursday   |           |         |            |
+| 06-10-2025, Monday   | Intro to ZKP          |         |            |
+| 09-10-2025, Thursday   | Sigma Protocols           |         |            |
 | 13-10-2025, Monday   |           |         |            |
 | 16-10-2025, Thursday   |           |         |            |
 | 20-10-2025, Monday   |           |         |            |
