@@ -45,5 +45,5 @@
 | 30-10-2025, Thursday   |           |         |            |
 | 03-11-2025, Monday   |           |         |            |
 | 06-11-2025, Thursday   |           |         |            |
-| 10-11-2025, Monday   |           |         |            |
-| 13-11-2025, Thursday   |           |         |            |
+| 10-11-2025, Monday   |   Pirsona        |         |            |
+| 13-11-2025, Thursday   | Sabre          |         |            |
