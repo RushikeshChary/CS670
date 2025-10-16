@@ -30,3 +30,20 @@
 | 11-09-2025, Thursday   | Read Only and Write Only Memory; Refreshing Blinds          |         |   [Duoram](https://www.usenix.org/system/files/usenixsecurity23-vadapalli.pdf)         |
 | 13-09-2025, Saturday   |  Extra Class Compensation for 21-08-2025, Midsem Prep         |         |            |
 | 15-09-2025, Monday   |  Midsem week         |         |            |
+| 18-09-2025, Thursday   |  Midsem week         |         |            |
+| 22-09-2025, Monday   | Midsem week          |         |            |
+| 25-09-2025, Thursday   | Midsem Discussion          |         |            |
+| 29-09-2025, Monday   |  Midsem Break         |         |            |
+| 02-10-2025, Thursday   |  Midsem Break         |         |            |
+| 06-10-2025, Monday   | Intro to ZKP          |         |            |
+| 09-10-2025, Thursday   | Sigma Protocols           |         |            |
+| 13-10-2025, Monday   |  OR-Proofs in Sigma Protocols         |         |            |
+| 16-10-2025, Thursday   | MPC-in-the-Head           |         |            |
+| 20-10-2025, Monday   | Intro to PIR          |         |            |
+| 23-10-2025, Thursday   | IT-PIR          |         |            |
+| 27-10-2025, Monday   | C-PIR          |         |            |
+| 30-10-2025, Thursday   | Client-Server ORAM           |         |            |
+| 03-11-2025, Monday   | Tree-ORAM           |         |            |
+| 06-11-2025, Thursday   | Obliv DS          |         |            |
+| 10-11-2025, Monday   |   Pirsona        |         |            |
+| 13-11-2025, Thursday   | Sabre          |         |            |
