@@ -1,0 +1,244 @@
+
+================= Generating DPF 1 =================
+DPF 1:
+Index: 4, Value: 1495923606
+
+[LOG] Starting generateDPF for index=4, value=1495923606
+[LOG] Target bits: 100
+Initial root0: (num=52626586, S=26313293, f=0)
+Initial root1: (num=1456644361, S=728322180, f=1)
+
+[LOG] === Level 0 === (bit=1)
+[LOG] Before CW: 
+  L0: (num=2640847016, S=1320423508, f=0)
+  R0: (num=414948216, S=207474108, f=0)
+  L1: (num=3592427973, S=1796213986, f=1)
+  R1: (num=1616897693, S=808448846, f=1)
+[LOG] After CW:
+  Root0 -> (num=414948216, S=207474108, f=0)
+  Root1 -> (num=722984945, S=361492472, f=1)
+  CW: [s_cw=631512246, f_cw0=1, f_cw1=0]
+
+[LOG] === Level 1 === (bit=0)
+[LOG] Before CW: 
+  L0: (num=3551055281, S=1775527640, f=1)
+  R0: (num=1942706941, S=971353470, f=1)
+  L1: (num=3577267038, S=1788633519, f=0)
+  R1: (num=1636357846, S=818178923, f=0)
+[LOG] After CW:
+  Root0 -> (num=3551055281, S=1775527640, f=1)
+  Root1 -> (num=3346747252, S=1673373626, f=0)
+  CW: [s_cw=153208341, f_cw0=0, f_cw1=1]
+
+[LOG] === Level 2 === (bit=0)
+[LOG] Before CW: 
+  L0: (num=3345031760, S=1672515880, f=0)
+  R0: (num=3231042986, S=1615521493, f=0)
+  L1: (num=2011136934, S=1005568467, f=0)
+  R1: (num=512907986, S=256453993, f=0)
+[LOG] After CW:
+  Root0 -> (num=426161449, S=213080724, f=1)
+  Root1 -> (num=2011136934, S=1005568467, f=0)
+  CW: [s_cw=1862519740, f_cw0=1, f_cw1=0]
+[LOG] Final CW added with s_cw=1853186257
+[LOG] generateDPF completed.
+
+[LOG] Running EvalFull() for target_index=4, target_value=1495923606
+
+[LOG] Evaluating DPF tree of size 8
+[LOG] DPF evaluation done.
+
+[LOG] Evaluating DPF tree of size 8
+[LOG] DPF evaluation done.
+[LOG] i=0, combined=0
+[LOG] i=1, combined=0
+[LOG] i=2, combined=0
+[LOG] i=3, combined=0
+[LOG] i=4, combined=1495923606
+[LOG] i=5, combined=0
+[LOG] i=6, combined=0
+[LOG] i=7, combined=0
+DPF 1 passed.
+
+================= Generating DPF 2 =================
+DPF 2:
+Index: 2, Value: 1361173914
+
+[LOG] Starting generateDPF for index=2, value=1361173914
+[LOG] Target bits: 010
+Initial root0: (num=2193034166, S=1096517083, f=0)
+Initial root1: (num=636520057, S=318260028, f=1)
+
+[LOG] === Level 0 === (bit=0)
+[LOG] Before CW: 
+  L0: (num=3554782054, S=1777391027, f=0)
+  R0: (num=2899756544, S=1449878272, f=0)
+  L1: (num=3410809612, S=1705404806, f=0)
+  R1: (num=3645057379, S=1822528689, f=1)
+[LOG] After CW:
+  Root0 -> (num=3554782054, S=1777391027, f=0)
+  Root1 -> (num=3201907823, S=1600953911, f=1)
+  CW: [s_cw=986380209, f_cw0=1, f_cw1=1]
+
+[LOG] === Level 1 === (bit=1)
+[LOG] Before CW: 
+  L0: (num=1239310485, S=619655242, f=1)
+  R0: (num=3685691701, S=1842845850, f=1)
+  L1: (num=63419442, S=31709721, f=0)
+  R1: (num=1238887855, S=619443927, f=1)
+[LOG] After CW:
+  Root0 -> (num=3685691701, S=1842845850, f=1)
+  Root1 -> (num=63846664, S=31923332, f=0)
+  CW: [s_cw=621603411, f_cw0=1, f_cw1=1]
+
+[LOG] === Level 2 === (bit=0)
+[LOG] Before CW: 
+  L0: (num=3336390837, S=1668195418, f=1)
+  R0: (num=1106870577, S=553435288, f=1)
+  L1: (num=3711018296, S=1855509148, f=0)
+  R1: (num=2608260609, S=1304130304, f=1)
+[LOG] After CW:
+  Root0 -> (num=475148165, S=237574082, f=1)
+  Root1 -> (num=3711018296, S=1855509148, f=0)
+  CW: [s_cw=1833415576, f_cw0=0, f_cw1=0]
+[LOG] Final CW added with s_cw=831527108
+[LOG] generateDPF completed.
+
+[LOG] Running EvalFull() for target_index=2, target_value=1361173914
+
+[LOG] Evaluating DPF tree of size 8
+[LOG] DPF evaluation done.
+
+[LOG] Evaluating DPF tree of size 8
+[LOG] DPF evaluation done.
+[LOG] i=0, combined=0
+[LOG] i=1, combined=0
+[LOG] i=2, combined=1361173914
+[LOG] i=3, combined=0
+[LOG] i=4, combined=0
+[LOG] i=5, combined=0
+[LOG] i=6, combined=0
+[LOG] i=7, combined=0
+DPF 2 passed.
+
+================= Generating DPF 3 =================
+DPF 3:
+Index: 6, Value: 1416695198
+
+[LOG] Starting generateDPF for index=6, value=1416695198
+[LOG] Target bits: 110
+Initial root0: (num=2903804769, S=1451902384, f=1)
+Initial root1: (num=2046420792, S=1023210396, f=0)
+
+[LOG] === Level 0 === (bit=1)
+[LOG] Before CW: 
+  L0: (num=3155167013, S=1577583506, f=1)
+  R0: (num=802917308, S=401458654, f=0)
+  L1: (num=2215561296, S=1107780648, f=0)
+  R1: (num=3622543130, S=1811271565, f=0)
+[LOG] After CW:
+  Root0 -> (num=398804169, S=199402084, f=1)
+  Root1 -> (num=3622543130, S=1811271565, f=0)
+  CW: [s_cw=470771642, f_cw0=1, f_cw1=1]
+
+[LOG] === Level 1 === (bit=1)
+[LOG] Before CW: 
+  L0: (num=349904770, S=174952385, f=0)
+  R0: (num=3840259160, S=1920129580, f=0)
+  L1: (num=4280577015, S=2140288507, f=1)
+  R1: (num=168296159, S=84148079, f=1)
+[LOG] After CW:
+  Root0 -> (num=253411372, S=126705686, f=0)
+  Root1 -> (num=168296159, S=84148079, f=1)
+  CW: [s_cw=1979693626, f_cw0=1, f_cw1=0]
+
+[LOG] === Level 2 === (bit=0)
+[LOG] Before CW: 
+  L0: (num=2715371452, S=1357685726, f=0)
+  R0: (num=1144016254, S=572008127, f=0)
+  L1: (num=2213755062, S=1106877531, f=0)
+  R1: (num=1027854461, S=513927230, f=1)
+[LOG] After CW:
+  Root0 -> (num=2715371452, S=1357685726, f=0)
+  Root1 -> (num=4202735029, S=2101367514, f=1)
+  CW: [s_cw=1018809985, f_cw0=1, f_cw1=1]
+[LOG] Final CW added with s_cw=2044591258
+[LOG] generateDPF completed.
+
+[LOG] Running EvalFull() for target_index=6, target_value=1416695198
+
+[LOG] Evaluating DPF tree of size 8
+[LOG] DPF evaluation done.
+
+[LOG] Evaluating DPF tree of size 8
+[LOG] DPF evaluation done.
+[LOG] i=0, combined=0
+[LOG] i=1, combined=0
+[LOG] i=2, combined=0
+[LOG] i=3, combined=0
+[LOG] i=4, combined=0
+[LOG] i=5, combined=0
+[LOG] i=6, combined=1416695198
+[LOG] i=7, combined=0
+DPF 3 passed.
+
+================= Generating DPF 4 =================
+DPF 4:
+Index: 1, Value: 133024446
+
+[LOG] Starting generateDPF for index=1, value=133024446
+[LOG] Target bits: 001
+Initial root0: (num=1477485046, S=738742523, f=0)
+Initial root1: (num=169672115, S=84836057, f=1)
+
+[LOG] === Level 0 === (bit=0)
+[LOG] Before CW: 
+  L0: (num=1103391536, S=551695768, f=0)
+  R0: (num=804115395, S=402057697, f=1)
+  L1: (num=2395177720, S=1197588860, f=0)
+  R1: (num=1183996460, S=591998230, f=0)
+[LOG] After CW:
+  Root0 -> (num=1103391536, S=551695768, f=0)
+  Root1 -> (num=3887860503, S=1943930251, f=1)
+  CW: [s_cw=884983031, f_cw0=1, f_cw1=1]
+
+[LOG] === Level 1 === (bit=0)
+[LOG] Before CW: 
+  L0: (num=23794977, S=11897488, f=1)
+  R0: (num=4272115265, S=2136057632, f=1)
+  L1: (num=3375564579, S=1687782289, f=1)
+  R1: (num=496679568, S=248339784, f=0)
+[LOG] After CW:
+  Root0 -> (num=23794977, S=11897488, f=1)
+  Root1 -> (num=705360882, S=352680441, f=0)
+  CW: [s_cw=1906113128, f_cw0=1, f_cw1=1]
+
+[LOG] === Level 2 === (bit=1)
+[LOG] Before CW: 
+  L0: (num=4182566809, S=2091283404, f=1)
+  R0: (num=3972760313, S=1986380156, f=1)
+  L1: (num=2920939195, S=1460469597, f=1)
+  R1: (num=4087331825, S=2043665912, f=1)
+[LOG] After CW:
+  Root0 -> (num=3147733978, S=1573866989, f=0)
+  Root1 -> (num=4087331825, S=2043665912, f=1)
+  CW: [s_cw=732597393, f_cw0=0, f_cw1=1]
+[LOG] Final CW added with s_cw=602757803
+[LOG] generateDPF completed.
+
+[LOG] Running EvalFull() for target_index=1, target_value=133024446
+
+[LOG] Evaluating DPF tree of size 8
+[LOG] DPF evaluation done.
+
+[LOG] Evaluating DPF tree of size 8
+[LOG] DPF evaluation done.
+[LOG] i=0, combined=0
+[LOG] i=1, combined=133024446
+[LOG] i=2, combined=0
+[LOG] i=3, combined=0
+[LOG] i=4, combined=0
+[LOG] i=5, combined=0
+[LOG] i=6, combined=0
+[LOG] i=7, combined=0
+DPF 4 passed.
