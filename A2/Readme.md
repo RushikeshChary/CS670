@@ -56,10 +56,6 @@ The program produces the following files after execution:
 
 ---
 
-Here’s a nicely worded section for your README explaining your implementation based on the plan you provided:
-
----
-
 ## **Implementation Details**
 
 The implementation follows a **tree-based DPF construction** using a pseudo-random generator (PRG) and correction words.
