@@ -42,8 +42,8 @@
 | 20-10-2025, Monday   | Intro to PIR          |         |            |
 | 23-10-2025, Thursday   | IT-PIR          |         |            |
 | 27-10-2025, Monday   | C-PIR          |         |            |
-| 30-10-2025, Thursday   | Client-Server ORAM           |         |            |
-| 03-11-2025, Monday   | Tree-ORAM           |         |            |
-| 06-11-2025, Thursday   | Obliv DS          |         |            |
-| 10-11-2025, Monday   |   Pirsona        |         |            |
-| 13-11-2025, Thursday   | Sabre          |         |            |
+| 30-10-2025, Thursday   | C-PIR           |         |            |
+| 03-11-2025, Monday   | Quiz 3           |         |            |
+| 06-11-2025, Thursday   |Quiz 4          |         |            |
+| 10-11-2025, Monday   |   Locoram        |         |            |
+| 13-11-2025, Thursday   | Final Recap          |         |            |
