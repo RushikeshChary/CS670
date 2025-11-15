@@ -1,0 +1,71 @@
+=== Role: P1 | Query 0 ===
+User feature matrix u (4x3):
+1 4 2 
+3 1 1 
+0 3 4 
+4 4 3 
+Item feature matrix v (4x3):
+5 2 2 
+3 2 2 
+4 3 0 
+1 2 0 
+Random matrix r (4x3):
+2 3 1 
+4 0 5 
+4 2 0 
+3 1 4 
+e_alpha: 10 7 0 10 
+alpha: 7
+shift: -2
+e_j: 0 10 10 7 
+v_dash (after exchange) (4x3):
+5 4 6 
+5 8 9 
+6 5 2 
+1 10 4 
+v_masked (4x3):
+12 9 9 
+12 10 16 
+14 10 2 
+5 13 8 
+v_j_share (masked): 295 291 236 
+e_j_matrix (4x3):
+0 0 0 
+10 10 10 
+10 10 10 
+7 7 7 
+x_n (4x3):
+1 5 5 
+2 3 5 
+2 4 5 
+2 4 4 
+y_n (4x3):
+3 1 1 
+5 1 1 
+2 4 1 
+0 1 2 
+gamma_n: 26 63 81 
+x_dash (after exchange) (4x3):
+2 6 4 
+-10 -9 -9 
+-5 -10 -6 
+-2 -7 -5 
+y_dash (after exchange) (4x3):
+3 5 4 
+5 9 9 
+5 8 7 
+6 6 6 
+r_share: 323 352 382 
+v_j_share (unmasked): -28 -61 -146 
+x_k: 4 9 8 
+y_k: 9 3 1 
+gamma_k: 84
+Inner product share: 2529
+scaler_x: 6 6 0 
+scaler_y: 10 9 8 
+scaler_gamma: 11 33 4 
+Final updated user feature vector (4x3):
+1 4 2 
+3 1 1 
+0 3 4 
+-20829 -45236 -108381 
