@@ -155,6 +155,47 @@ awaitable<void> send_vector1d(tcp::socket& sock, const std::vector<int32_t>& v) 
     co_return;
 }
 
+// This is structure node:
+// struct node
+// {
+//     uint32_t num;
+//     uint32_t S;
+//     bool f;
+// };
+// Send a node
+awaitable<void> send_node(tcp::socket& sock, const node& n) {
+    co_await boost::asio::async_write(sock, boost::asio::buffer(&n, sizeof(n)), use_awaitable);
+    co_return;
+}
+// Receive a node
+awaitable<void> recv_node(tcp::socket& sock, node& n) {
+    co_await boost::asio::async_read(sock, boost::asio::buffer(&n, sizeof(n)), use_awaitable);
+    co_return;
+}
+
+// This is structure correction_word:
+// struct correction_word
+// {
+//     uint32_t s_cw;
+//     bool f_cw0;
+//     bool f_cw1;
+// };
+// Send a vector<correction_word>
+awaitable<void> send_correction_words(tcp::socket& sock, const std::vector<correction_word>& cws) {
+    if (!cws.empty()) {
+        co_await boost::asio::async_write(sock, boost::asio::buffer(cws.data(), cws.size() * sizeof(correction_word)), use_awaitable);
+    }
+    co_return;
+}
+// Receive a vector<correction_word> into pre-sized buffer
+awaitable<void> recv_correction_words(tcp::socket& sock, std::vector<correction_word>& cws) {
+    if (!cws.empty()) {
+        co_await boost::asio::async_read(sock, boost::asio::buffer(cws.data(), cws.size() * sizeof(correction_word)), use_awaitable);
+    }
+    co_return;
+}
+
+
 // Receive a 1D vector<int32_t> into pre-sized buffer
 awaitable<void> recv_vector1d(tcp::socket& sock, std::vector<int32_t>& v) {
     if (!v.empty()) {
