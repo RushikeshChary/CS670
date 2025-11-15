@@ -76,6 +76,9 @@
         "valarray": "cpp",
         "variant": "cpp",
         "xlocnum": "cpp",
-        "xutility": "cpp"
+        "xutility": "cpp",
+        "ranges": "cpp",
+        "span": "cpp",
+        "stacktrace": "cpp"
     }
 }

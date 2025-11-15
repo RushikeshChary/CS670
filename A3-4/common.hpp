@@ -9,6 +9,7 @@
 #include <vector>
 #include <string>
 #include <fstream>
+#include "dpf.h"
 
 using boost::asio::awaitable;
 using boost::asio::co_spawn;

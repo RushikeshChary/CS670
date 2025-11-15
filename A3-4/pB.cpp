@@ -6,7 +6,6 @@
 #include <stdexcept> // for std::runtime_error
 #include "common.hpp"
 #include "shares.hpp"
-#include "dpf.h"
 
 #if !defined(ROLE_p0) && !defined(ROLE_p1)
 #error "ROLE must be defined as ROLE_p0 or ROLE_p1"
@@ -309,47 +308,61 @@ awaitable<void> run(boost::asio::io_context& io_context) {
     //     share.u[user_index] = vec_add(share.u[user_index], result);
     //     log_matrix(ofs, "Final updated user feature vector", share.u);
     //     std::cout<<"User database updated.\n";
-    
+        std::cout<<"MPC scalar product done. Result shares obtained.\n";
         //Now, Get DPF keys of zero vectors from server.
         int index_share;
-        std::vector<int> e_index_share;
+        std::vector<int> e_index_share(n);
         co_await recv_int32(server_sock, index_share);
+        // std::cout<<"index_share recieved from p2: "<<index_share<<"\n";
         co_await recv_vector1d(server_sock, e_index_share);
-        std::vector<node> DPF_key_seed;
-        std::vector<correction_word> DPF_cw;
-        std::vector<uint32_t> DPF_fcw;
+        // std::cout<<"e_index_share size: "<<e_index_share.size()<<"\n";
+        node DPF_key_seed;
+        std::vector<correction_word> DPF_cw(log2(n));
+        std::vector<int> DPF_fcw(2);
 
         co_await recv_node(server_sock, DPF_key_seed);
+        // print_node(DPF_key_seed, "DPF_key_seed");
         co_await recv_correction_words(server_sock, DPF_cw);
+        // print_correction_word(DPF_cw[0], "DPF_cw[0]");
         co_await recv_vector1d(server_sock, DPF_fcw);
-
-        // std::cout<<"DPF key and correction words recieved from p2\n";
+        // std::cout<<DPF_fcw.size()<<endl;
+        // print_vector(DPF_fcw, "DPF_fcw");
         // Now, update the final correction words of the DPF recieved and evaulate it for each index k.
-        int fcw_share;
-        int other_fcw_share;
+        // int other_fcw_share;
         std::vector<std::vector<int>> update_vector(k, std::vector<int>(n,0));
         for(int i = 0;i<k;i++){
-            fcw_share = result[i] - DPF_fcw[party_id];
+            int fcw_share = result[i] - DPF_fcw[party_id];
+            std::cout<<"Computed final correction word share for index "<<i<<": "<<fcw_share<<"\n";
             co_await send_int32(peer_sock, fcw_share);
-            co_await recv_int32(peer_sock, other_fcw_share);
+            co_await recv_int32(peer_sock, fcw_share);
+            std::cout<<"Exchanged fcw share : " << fcw_share <<"\n";
             // Update the final correction word.
-            int fcw = fcw_share + other_fcw_share;
-            update_vector[i] = evalDPF(DPF_key_seed, DPF_cw, fcw, k, summary, party_id);
+            int fcw = fcw_share + result[i] - DPF_fcw[party_id];
+            std::cout<<"Final fcw: " << fcw <<"\n";
+            std::vector<int> arr = evalDPF(DPF_key_seed, DPF_cw, fcw, n, party_id);
+            print_vector(arr, "DPF evaluation result array for index "+std::to_string(i));
+            std::cout<<"DPF evaluated for index "<<i<<"\n";
 
             // Now rotate this vector according to index shares and e_j shares.
             int local_diff = item_index_share - index_share;
             co_await send_int32(peer_sock, local_diff);
             co_await recv_int32(peer_sock, local_diff);
+            std::cout<<"local_diff for index "<<i<<" is: "<<local_diff<<"\n";
             int shift = local_diff + (item_index_share - index_share);
-            update_vector[i] = rotate_cyclic(update_vector[i], shift);
+            std::cout<<"Total shift for index "<<i<<" is: "<<shift<<"\n";
+            update_vector[i] = rotate_cyclic(arr, shift);
+            std::cout<<"DPF evaluation rotated for index "<<i<<"\n";
         }
+        std::cout<<"DPF evaluation done for all k indices.\n";
         // Finally update the item database column wise, add the each update_vector to item feature matrix.
         for(int i = 0;i<n;i++){
             for(int j = 0;j<k;j++){
                 share.v[i][j] += update_vector[j][i];
             }
         }
+        std::cout<<"Item database updated.\n";
         log_matrix(ofs, "Final updated item feature matrix", share.v);
+        std::cout<<"END"<<"\n";
     }
 
     co_return;

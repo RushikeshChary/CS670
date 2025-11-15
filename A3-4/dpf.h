@@ -79,18 +79,18 @@ uint64_t PRG(uint32_t seed)
     return dist(gen);
 }
 
-void print_node(const node &nd, ofstream &summary, const string &label = "")
+void print_node(const node &nd, const string &label = "")
 {
     if (!label.empty())
-        summary << label << " ";
-    summary << "(num=" << nd.num << ", S=" << nd.S << ", f=" << nd.f << ")\n";
+        cout << label << " ";
+    cout << "(num=" << nd.num << ", S=" << nd.S << ", f=" << nd.f << ")\n";
 }
 
-void print_correction_word(const correction_word &cw, ofstream &summary, const string &label = "")
+void print_correction_word(const correction_word &cw, const string &label = "")
 {
     if (!label.empty())
-        summary << label << " ";
-    summary << "[s_cw=" << cw.s_cw << ", f_cw0=" << cw.f_cw0 << ", f_cw1=" << cw.f_cw1 << "]\n";
+        cout << label << " ";
+    cout << "[s_cw=" << cw.s_cw << ", f_cw0=" << cw.f_cw0 << ", f_cw1=" << cw.f_cw1 << "]\n";
 }
 
 void write_key_to_files(const DPF_key &key, ofstream &dpf0, ofstream &dpf1)
@@ -241,7 +241,7 @@ DPF_key generateDPF(uint32_t index, long long value, uint32_t DPF_size)
 // -------------------------------------------------------------
 // DPF Evaluation
 // -------------------------------------------------------------
-vector<uint32_t> evalDPF(const node &seed, const vector<correction_word> &data, uint32_t fcw, uint32_t size, int party_id)
+vector<int32_t> evalDPF(const node &seed, const vector<correction_word> &data, uint32_t fcw, uint32_t size, int party_id)
 {
     // summary << "\n[LOG] Evaluating DPF tree of size " << size << "\n";
     vector<node> heap(2 * size - 1);
@@ -273,14 +273,14 @@ vector<uint32_t> evalDPF(const node &seed, const vector<correction_word> &data, 
     }
     int flag = 1;
     if(party_id == 1) flag = -1;
-    vector<uint32_t> output(size);
+    vector<int32_t> output(size);
     for (uint32_t i = 0; i < size; ++i)
     {
         uint32_t leaf_index = size - 1 + i;
         
         // if (heap[leaf_index].f)
         //     heap[leaf_index].S ^= data.back().s_cw;
-        heap[leaf_index].S = flag * (heap[leaf_index].S + heap[leaf_index].f*f_cw);
+        heap[leaf_index].S = flag * (heap[leaf_index].S + heap[leaf_index].f*fcw);
         output[i] = heap[leaf_index].S;
     }
 

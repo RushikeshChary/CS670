@@ -1,12 +1,12 @@
 #include "common.hpp"
-#include "dpf.h"
+
 // #include "shares.hpp"
 
 using boost::asio::ip::tcp;
 
 int m,n,k,Q;
 // Send a number to a client
-boost::asio::awaitable<void> handle_client(tcp::socket socket, const std::string &name, const std::vector<std::vector<int>> &e_alpha, std::vector<int> &alpha, std::vector<std::vector<std::vector<int>>> &matrix_xn, std::vector<std::vector<std::vector<int>>> &matrix_yn, std::vector<std::vector<int>> & gamma_shares, std::vector<std::vector<int>> &mpc_vec_xk, std::vector<std::vector<int>> &mpc_vec_yk, std::vector<int> &mpc_gamma_shares, std::vector<std::vector<int>> &mpc_scaler_xk_shares, std::vector<std::vector<int>> &mpc_scaler_yk_shares, std::vector<std::vector<int>> &mpc_scaler_gamma_shares, std::vector<int> & index, std::vector<std::vector<int>> & e_index, std::vector<node> &DPF_key, std::vector<std::vector<correction_word>> &DPF_cw, std::vector<std::vector<uint32_t>> &DPF_fcw)
+boost::asio::awaitable<void> handle_client(tcp::socket socket, const std::string &name, const std::vector<std::vector<int>> &e_alpha, std::vector<int> &alpha, std::vector<std::vector<std::vector<int>>> &matrix_xn, std::vector<std::vector<std::vector<int>>> &matrix_yn, std::vector<std::vector<int>> & gamma_shares, std::vector<std::vector<int>> &mpc_vec_xk, std::vector<std::vector<int>> &mpc_vec_yk, std::vector<int> &mpc_gamma_shares, std::vector<std::vector<int>> &mpc_scaler_xk_shares, std::vector<std::vector<int>> &mpc_scaler_yk_shares, std::vector<std::vector<int>> &mpc_scaler_gamma_shares, std::vector<int> & index, std::vector<std::vector<int>> & e_index, std::vector<node> &DPF_key, std::vector<std::vector<correction_word>> &DPF_cw, std::vector<std::vector<int>> &DPF_fcw)
 {
     try {
         for (int q = 0; q < Q; ++q) {
@@ -40,14 +40,17 @@ boost::asio::awaitable<void> handle_client(tcp::socket socket, const std::string
 
             // Now, send DPF keys and correction words for this query.
             co_await send_int32(socket, index[q]);
+            // std::cout<<"index[q]:"<<index[q]<<"\n";
             co_await send_vector1d(socket, e_index[q]);
+            // std::cout<< "e_index[q] size: "<<e_index[q].size()<<"\n";
             // Send DPF key
             co_await send_node(socket, DPF_key[q]);
-            // std::cout<<"Sent DPF key to "<<name<<"\n";
             // Send correction words
+            // std::cout<<"DPF correction words size to send: "<<DPF_cw[q].size()<<"\n";
             co_await send_correction_words(socket, DPF_cw[q]);
             // std::cout<<"Sent DPF correction words to "<<name<<"\n";
             co_await send_vector1d(socket, DPF_fcw[q]);
+            // std::cout<<"DPF final correction words size to send: "<<DPF_fcw[q].size()<<"\n";
             // std::cout<<"Sent DPF final correction words to "<<name<<"\n";
         }
     } catch (const std::exception &ex) {
@@ -132,8 +135,7 @@ int main()
         std::vector<std::vector<correction_word>> DPF_cw;
         std::vector<int> index_shares_p0, index_shares_p1;
         std::vector<std::vector<int>> e_index_shares_p0, e_index_shares_p1;
-        std::vector<uint32_t> fcw;
-        std::vector<std::vector<uint32_t>> DPF_fcw;
+        std::vector<std::vector<int>> DPF_fcw;
         for (int q = 0; q < Q; ++q) {
             // Firstly, let us get alpha shares(int) and e_alpha shares (1d vector).
             int alpha = rand_int(0, n - 1);
@@ -228,19 +230,23 @@ int main()
             // Now, generate DPF keys of zero vector for both parties.
             // Choose some index say alpha and value 0.
             int index = rand_int(0, n - 1);
+            std::cout<<"Index chosen : "<<index<<"\n";
             int value = 0;
-            auto [index_p0, index_p1] = make_additive _shares_int(index)
+            auto [index_p0, index_p1] = make_additive_shares_int(index);
             index_shares_p0.push_back(index_p0);
             index_shares_p1.push_back(index_p1);
-            auto [e_index_share_p0, e_index_share_p1] = make_basis_vector_shares(k, index);
-            e_index_share_p0.push_back(e_index_share_p0);
-            e_index_share_p1.push_back(e_index_share_p1);
+            auto [e_index_share_p0, e_index_share_p1] = make_basis_vector_shares(n, index);
+            e_index_shares_p0.push_back(e_index_share_p0);
+            e_index_shares_p1.push_back(e_index_share_p1);
             // Edit this files and summary in function implementation.
             DPF_key key = generateDPF(index, value, n);
             DPF_key_p0.push_back(key.seed);
             DPF_key_p1.push_back(key.seed1);
             DPF_cw.push_back(key.data);
-            fcw.push_back(key.final_cw0, key.final_cw1);
+            std::vector<int> fcw;
+            fcw.push_back(key.final_cw0);
+            fcw.push_back(key.final_cw1);
+            print_vector(fcw, "fcw");
             DPF_fcw.push_back(fcw);
 
         }
@@ -256,8 +262,8 @@ int main()
         std::cout<<"Both clients connected to P2. Starting protocol...\n";
         // Launch all coroutines in parallel
         run_in_parallel(io_context, [&]() -> boost::asio::awaitable<void>
-                        { co_await handle_client(std::move(socket_p0), "P0", e_alpha_shares_p0, alpha_shares_p0, matrix_xn_shares_p0, matrix_yn_shares_p0, gamma_shares_p0, mpc_vec_xk_shares_p0, mpc_vec_yk_shares_p0, mpc_gamma_shares_p0, mpc_scaler_xk_shares_p0, mpc_scaler_yk_shares_p0, mpc_scaler_gamma_shares_p0, index_shares_p0, e_index_share_p0, DPF_key_p0, DPF_cw, DPF_fcw);}, [&]() -> boost::asio::awaitable<void>
-                        { co_await handle_client(std::move(socket_p1), "P1", e_alpha_shares_p1, alpha_shares_p1, matrix_xn_shares_p1, matrix_yn_shares_p1, gamma_shares_p1, mpc_vec_xk_shares_p1, mpc_vec_yk_shares_p1, mpc_gamma_shares_p1, mpc_scaler_xk_shares_p1, mpc_scaler_yk_shares_p1, mpc_scaler_gamma_shares_p1, index_shares_p1, e_index_share_p1, DPF_key_p1, DPF_cw, DPF_fcw);});
+                        { co_await handle_client(std::move(socket_p0), "P0", e_alpha_shares_p0, alpha_shares_p0, matrix_xn_shares_p0, matrix_yn_shares_p0, gamma_shares_p0, mpc_vec_xk_shares_p0, mpc_vec_yk_shares_p0, mpc_gamma_shares_p0, mpc_scaler_xk_shares_p0, mpc_scaler_yk_shares_p0, mpc_scaler_gamma_shares_p0, index_shares_p0, e_index_shares_p0, DPF_key_p0, DPF_cw, DPF_fcw);}, [&]() -> boost::asio::awaitable<void>
+                        { co_await handle_client(std::move(socket_p1), "P1", e_alpha_shares_p1, alpha_shares_p1, matrix_xn_shares_p1, matrix_yn_shares_p1, gamma_shares_p1, mpc_vec_xk_shares_p1, mpc_vec_yk_shares_p1, mpc_gamma_shares_p1, mpc_scaler_xk_shares_p1, mpc_scaler_yk_shares_p1, mpc_scaler_gamma_shares_p1, index_shares_p1, e_index_shares_p1, DPF_key_p1, DPF_cw, DPF_fcw);});
 
         io_context.run();
 
