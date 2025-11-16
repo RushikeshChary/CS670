@@ -33,6 +33,8 @@ struct DPF_key
     vector<correction_word> data;
     uint32_t final_cw0;
     uint32_t final_cw1;
+    bool final_f0;
+    bool final_f1;
 };
 
 // -------------------------------------------------------------
@@ -229,6 +231,8 @@ DPF_key generateDPF(uint32_t index, long long value, uint32_t DPF_size)
     uint32_t final_cw1 = -4;
     key.final_cw0 = final_cw0;
     key.final_cw1 = final_cw1;
+    key.final_f0 = root.f;
+    key.final_f1 = root1.f;
 
     // summary << "[LOG] Final CW added with s_cw=" << final_cw << "\n";
 

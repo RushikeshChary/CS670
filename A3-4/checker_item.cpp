@@ -14,16 +14,6 @@ vector<int> parse_vector(const string& line) {
     return v;
 }
 
-vector<vector<int>> parse_matrix(ifstream& fin, int rows, int cols) {
-    vector<vector<int>> M(rows, vector<int>(cols));
-    string line;
-    for (int i = 0; i < rows; i++) {
-        getline(fin, line);
-        M[i] = parse_vector(line);
-    }
-    return M;
-}
-
 void print_vec(const vector<int>& v, string name="") {
     if (!name.empty()) cout << name << ": ";
     for (int x : v) cout << x << " ";
@@ -37,6 +27,23 @@ void print_matrix(const vector<vector<int>>& M, string name="") {
         cout << "\n";
     }
     cout << "\n";
+}
+
+// ---------------- File print utilities ----------------
+void print_vec_to_file(ofstream& fout, const vector<int>& v, string name="") {
+    if (!name.empty()) fout << name << ": ";
+    for (int x : v) fout << x << " ";
+    fout << "\n";
+}
+
+void print_matrix_to_file(ofstream& fout, const vector<vector<int>>& M, string name="") {
+    fout << "\n" << name << " (" << M.size() 
+         << "x" << (M.empty()?0:M[0].size()) << "):\n";
+    for (auto &row : M) {
+        for (int x : row) fout << x << " ";
+        fout << "\n";
+    }
+    fout << "\n";
 }
 
 // ---- Math helpers ----
@@ -69,7 +76,9 @@ void check_item(
 ) {
     int k = u.size();
 
-    // reconstruct old
+    ofstream fout("check_item_output.txt");
+
+    // reconstruct old v_j
     vector<int> v_old(k);
     for (int t = 0; t < k; t++)
         v_old[t] = V0[j][t] + V1[j][t];
@@ -80,34 +89,55 @@ void check_item(
     vector<int> M = mul_scalar(u, delta);
     vector<int> v_expected = add(v_old, M);
 
-    // reconstruct actual updated
+    // actual updated v_j
     vector<int> v_actual(k);
     for (int t = 0; t < k; t++)
         v_actual[t] = V0_upd[j][t] + V1_upd[j][t];
 
-    // Print
-    cout << "---------------------------------------------------------\n";
-    cout << " Checking correctness for item index j = " << j << "\n";
-    cout << "---------------------------------------------------------\n";
+    // =================== FILE OUTPUT ======================
+    fout << "================= CHECK ITEM OUTPUT =================\n\n";
+    fout << "Item index j = " << j << "\n";
+    fout << "k (dimension) = " << k << "\n\n";
 
-    print_vec(v_old, "Old v_j");
-    print_vec(M, "Update term M = u*(1 - <u, v_j>)");
-    print_vec(v_expected, "Expected updated v_j");
-    print_vec(v_actual, "Actual updated v_j (from shares)");
+    // u
+    print_vec_to_file(fout, u, "Initial u");
 
-    // Compare
+    // v
+    print_vec_to_file(fout, v_old, "Initial v_j (from V0 + V1)");
+    print_vec_to_file(fout, v_expected, "Expected updated v_j");
+    print_vec_to_file(fout, v_actual, "Actual updated v_j");
+
+    // Initial U = V0 + V1
+    vector<vector<int>> U_initial(V0.size(), vector<int>(k));
+    for (int i = 0; i < V0.size(); i++)
+        for (int t = 0; t < k; t++)
+            U_initial[i][t] = V0[i][t] + V1[i][t];
+    print_matrix_to_file(fout, U_initial, "Initial V = V0 + V1");
+
+    // Final U = V0_upd + V1_upd
+    vector<vector<int>> U_final(V0_upd.size(), vector<int>(k));
+    for (int i = 0; i < V0_upd.size(); i++)
+        for (int t = 0; t < k; t++)
+            U_final[i][t] = V0_upd[i][t] + V1_upd[i][t];
+    print_matrix_to_file(fout, U_final, "Final V = V0_updated + V1_updated");
+
+    // Comparison
+    fout << "============= ELEMENTWISE COMPARISON =============\n";
     bool ok = true;
     for (int t = 0; t < k; t++) {
         if (v_expected[t] != v_actual[t]) {
             ok = false;
-            cout << "❌ Mismatch at pos " << t
+            fout << "Mismatch at t=" << t 
                  << ": expected " << v_expected[t]
                  << ", got " << v_actual[t] << "\n";
         }
     }
 
-    if (ok) cout << "\n✅ Update is CORRECT for item index j = " << j << "\n";
-    else    cout << "\n❌ Update is WRONG for item index j = " << j << "\n";
+    fout << "\nResult: ";
+    if (ok) fout << "✔ UPDATE IS CORRECT\n";
+    else    fout << "✘ UPDATE IS WRONG\n";
+
+    fout.close();
 }
 
 // ---------------- Main: reads from file ----------------
@@ -120,7 +150,7 @@ int main() {
 
     string line;
 
-    // ---------------- Read inputs ----------------
+    // Read inputs -----------------------
     getline(fin, line);
     int j = stoi(line);
 
@@ -135,7 +165,7 @@ int main() {
     vector<string> buffer;
     while (getline(fin, line)) buffer.push_back(line);
 
-    // Section finders
+    // Find sections
     auto find_index = [&](const string& key){
         for (int i = 0; i < (int)buffer.size(); i++)
             if (buffer[i].find(key) != string::npos)
@@ -148,7 +178,7 @@ int main() {
     int iV0u  = find_index("V0_updated:");
     int iV1u  = find_index("V1_updated:");
 
-    int rows = (iV1 - iV0) - 1; // #rows in matrix
+    int rows = (iV1 - iV0) - 1;
 
     auto read_block = [&](int start){
         vector<vector<int>> M(rows, vector<int>(k));
@@ -157,12 +187,13 @@ int main() {
         return M;
     };
 
+    // Load matrices
     vector<vector<int>> V0     = read_block(iV0);
     vector<vector<int>> V1     = read_block(iV1);
     vector<vector<int>> V0_upd = read_block(iV0u);
     vector<vector<int>> V1_upd = read_block(iV1u);
 
-    // ---------------- Print everything ----------------
+    // Print to console (unchanged)
     cout << "========== LOADED INPUT ==========\n\n";
     cout << "Item index j = " << j << "\n";
     cout << "k (dimension) = " << k << "\n";
@@ -173,7 +204,7 @@ int main() {
     print_matrix(V0_upd, "V0_updated");
     print_matrix(V1_upd, "V1_updated");
 
-    // ---------------- Perform correctness check ----------------
+    // correctness check + file output
     check_item(V0, V1, V0_upd, V1_upd, u, j);
 
     return 0;

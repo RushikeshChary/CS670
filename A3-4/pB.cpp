@@ -75,7 +75,7 @@ std::vector<int> colwise_dot(const std::vector<std::vector<int>> &A,
 }
 
 void log_matrix(std::ofstream &ofs, const std::string &name, const std::vector<std::vector<int>> &mat) {
-    ofs << name << " (" << mat.size() << "x" << (mat.empty() ? 0 : mat[0].size()) << "):\n";
+    // ofs << name << " (" << mat.size() << "x" << (mat.empty() ? 0 : mat[0].size()) << "):\n";
     for(const auto &row : mat) {
         for(auto val : row) ofs << val << " ";
         ofs << "\n";
@@ -84,7 +84,7 @@ void log_matrix(std::ofstream &ofs, const std::string &name, const std::vector<s
 }
 
 void log_vector(std::ofstream &ofs, const std::string &name, const std::vector<int> &vec) {
-    ofs << name << ": ";
+    // ofs << name << ": ";
     for(auto val : vec) ofs << val << " ";
     ofs << "\n";
     ofs << std::flush;
@@ -126,20 +126,26 @@ awaitable<void> run(boost::asio::io_context& io_context) {
 
     std::string q_file;
     std::string output_file;
+    std::string o1;
+    // std::string o2;
     int party_id;
 #ifdef ROLE_p0
     q_file = "f1.txt";
     output_file = "o1.txt";
-    party_id = 0;
+    o1 = "data/output0.txt";
+
+    // party_id = 0;
 #else
     q_file = "f2.txt";
     output_file = "o2.txt";
-    party_id = 1;
+    o1 = "data/output1.txt";
+    // party_id = 1;
 #endif
     // std::cout << "Using query file: " << q_file << std::endl;
     //Read input data and queries from file
     std::ifstream ifs(q_file);
     std::ofstream ofs(output_file);
+    std::ofstream ofs1(o1);
     if (!ifs) {
         std::cerr << "Error opening file for reading: " << q_file << std::endl;
         co_return;
@@ -150,6 +156,8 @@ awaitable<void> run(boost::asio::io_context& io_context) {
     }
     int m,n,k,q;
     ifs >> m >> n >> k >> q;
+    co_await recv_int32(server_sock, party_id); // Receive party ID from server to confirm connection
+    std::cout << "Party ID confirmed: " << party_id << "\n";
     for(int i = 0;i<q;i++){
         // extract the quiery
         int user_index, item_index_share;
@@ -165,7 +173,9 @@ awaitable<void> run(boost::asio::io_context& io_context) {
     ofs << "=== Role: P1 | Query " << i << " ===\n";
 #endif
         log_matrix(ofs, "User feature matrix u", share.u);
+        log_matrix(ofs1,"", share.u);
         log_matrix(ofs, "Item feature matrix v", share.v);
+        log_matrix(ofs1,"", share.v);
         log_matrix(ofs, "Random matrix r", share.r);
         // Here the protocol begins.
         // Step 1: Receive e_alpha share and alpha from server.
@@ -214,6 +224,7 @@ awaitable<void> run(boost::asio::io_context& io_context) {
         // Here D is matrix.. So, let us extrapolate the e_j shares (f0, f1) to matrices and perform a column vise dot product.
         std::vector<std::vector<int>> e_j_matrix(n, std::vector<int>(k,0));
         for(int i = 0;i<n;i++) e_j_matrix[i] = std::vector<int>(k, e_j[i]);
+        
 
         log_matrix(ofs, "e_j_matrix", e_j_matrix);
         // Du-Atallah
@@ -284,6 +295,7 @@ awaitable<void> run(boost::asio::io_context& io_context) {
         ofs << "gamma_k: " << share.gamma_k << "\n";
         int inn_product;
         co_await MPC_DOTPRODUCT(peer_sock, share.x_k, share.y_k, share.gamma_k, share.u[user_index], v_j_share, inn_product);
+        std::cout<<"Inner product share computed: "<<inn_product<<"\n";
         // Now lets get shares of delta:
         int delta;
 #ifdef ROLE_p0
@@ -300,15 +312,20 @@ awaitable<void> run(boost::asio::io_context& io_context) {
         log_vector(ofs, "scaler_x", share.scaler_x);
         log_vector(ofs, "scaler_y", share.scaler_y);
         log_vector(ofs, "scaler_gamma", share.scaler_gamma);
-        std::vector<int> result(k);
-        // co_await MPC_SCALAR_PRODUCT(peer_sock, share.scaler_x, share.scaler_y, share.scaler_gamma, v_j_share, delta, result);
-        co_await MPC_SCALAR_PRODUCT(peer_sock, share.scaler_x, share.scaler_y, share.scaler_gamma, share.u[user_index], delta, result);
+        std::vector<int> u_delta(k);
+        std::vector<int> v_delta(k);
+        co_await MPC_SCALAR_PRODUCT(peer_sock, share.scaler_x, share.scaler_y, share.scaler_gamma, v_j_share, delta, v_delta);
+        co_await MPC_SCALAR_PRODUCT(peer_sock, share.scaler_x, share.scaler_y, share.scaler_gamma, share.u[user_index], delta, u_delta);
 
         // Do the final update to user database now.
-    //     share.u[user_index] = vec_add(share.u[user_index], result);
-    //     log_matrix(ofs, "Final updated user feature vector", share.u);
-    //     std::cout<<"User database updated.\n";
+        share.u[user_index] = vec_add(share.u[user_index], v_delta);
+        log_matrix(ofs, "Final updated user feature vector", share.u);
+        std::cout<<"User database updated.\n";
+
+
         std::cout<<"MPC scalar product done. Result shares obtained.\n";
+        print_vector(v_delta, "v_delta");
+        print_vector(u_delta, "u_delta");
         //Now, Get DPF keys of zero vectors from server.
         int index_share;
         std::vector<int> e_index_share(n);
@@ -319,6 +336,7 @@ awaitable<void> run(boost::asio::io_context& io_context) {
         node DPF_key_seed;
         std::vector<correction_word> DPF_cw(log2(n));
         std::vector<int> DPF_fcw(2);
+        bool sign_flag;
 
         co_await recv_node(server_sock, DPF_key_seed);
         // print_node(DPF_key_seed, "DPF_key_seed");
@@ -327,31 +345,34 @@ awaitable<void> run(boost::asio::io_context& io_context) {
         co_await recv_vector1d(server_sock, DPF_fcw);
         // std::cout<<DPF_fcw.size()<<endl;
         // print_vector(DPF_fcw, "DPF_fcw");
+        co_await recv_bool(server_sock, sign_flag);
         // Now, update the final correction words of the DPF recieved and evaulate it for each index k.
         // int other_fcw_share;
         std::vector<std::vector<int>> update_vector(k, std::vector<int>(n,0));
+        vector<int> arr(n);
         for(int i = 0;i<k;i++){
-            int fcw_share = result[i] - DPF_fcw[party_id];
-            std::cout<<"Computed final correction word share for index "<<i<<": "<<fcw_share<<"\n";
+            int fcw_share = (sign_flag ? -1 : 1)*(u_delta[i]) + DPF_fcw[party_id];
+            // std::cout<<"Computed final correction word share for index "<<i<<": "<<fcw_share<<"\n";
             co_await send_int32(peer_sock, fcw_share);
             co_await recv_int32(peer_sock, fcw_share);
-            std::cout<<"Exchanged fcw share : " << fcw_share <<"\n";
+            // std::cout<<"Exchanged fcw share : " << fcw_share <<"\n";
             // Update the final correction word.
-            int fcw = fcw_share + result[i] - DPF_fcw[party_id];
+            int fcw = fcw_share + (sign_flag ? -1 : 1)*(u_delta[i]) + DPF_fcw[party_id];
             std::cout<<"Final fcw: " << fcw <<"\n";
-            std::vector<int> arr = evalDPF(DPF_key_seed, DPF_cw, fcw, n, party_id);
-            print_vector(arr, "DPF evaluation result array for index "+std::to_string(i));
+            arr = evalDPF(DPF_key_seed, DPF_cw, fcw, n, party_id);
+
+            print_vector(arr, "DPF evaluation u_delta array for index "+std::to_string(i));
             std::cout<<"DPF evaluated for index "<<i<<"\n";
 
             // Now rotate this vector according to index shares and e_j shares.
             int local_diff = item_index_share - index_share;
             co_await send_int32(peer_sock, local_diff);
             co_await recv_int32(peer_sock, local_diff);
-            std::cout<<"local_diff for index "<<i<<" is: "<<local_diff<<"\n";
+            // std::cout<<"local_diff for index "<<i<<" is: "<<local_diff<<"\n";
             int shift = local_diff + (item_index_share - index_share);
-            std::cout<<"Total shift for index "<<i<<" is: "<<shift<<"\n";
+            // std::cout<<"Total shift for index "<<i<<" is: "<<shift<<"\n";
             update_vector[i] = rotate_cyclic(arr, shift);
-            std::cout<<"DPF evaluation rotated for index "<<i<<"\n";
+            // std::cout<<"DPF evaluation rotated for index "<<i<<"\n";
         }
         std::cout<<"DPF evaluation done for all k indices.\n";
         // Finally update the item database column wise, add the each update_vector to item feature matrix.
@@ -361,7 +382,29 @@ awaitable<void> run(boost::asio::io_context& io_context) {
             }
         }
         std::cout<<"Item database updated.\n";
+        // Now, we have to upadate the masked item database as well for next iteration.
+        fill_random(share.r);
+        // Now compute v_dash again.
+        for(int i = 0;i<n;i++){
+            for(int j = 0;j<k;j++){
+                share.v_dash[i][j] = share.v[i][j] - share.r[i][j];
+            }
+        }
+        // Exchange v_dash again.
+        co_await send_vector2d(peer_sock, share.v_dash);
+        // std::cout<<"v_dash sent to peer\n";
+        co_await recv_vector2d(peer_sock, share.v_dash);
+        // std::cout<<"v_dash recieved from peer\n";
+
+
+        // Now compute the masked V database.
+        for(int i = 0;i<n;i++){
+            for(int j = 0;j<k;j++){
+                share.v_masked[i][j] = share.v_dash[i][j] + share.r[i][j] + share.v[i][j];
+            }
+        }
         log_matrix(ofs, "Final updated item feature matrix", share.v);
+        log_matrix(ofs1,"", share.v);
         std::cout<<"END"<<"\n";
     }
 

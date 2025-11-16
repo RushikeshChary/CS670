@@ -6,6 +6,8 @@ services:
       - ROLE=p2
     networks:
       - mpc_net
+    volumes:
+      - ./data:/app/data
 
   p0:
     build: .
@@ -17,6 +19,8 @@ services:
       - p1
     networks:
       - mpc_net
+    volumes:
+      - ./data:/app/data
 
   p1:
     build: .
@@ -27,6 +31,8 @@ services:
       - p2
     networks:
       - mpc_net
+    volumes:
+      - ./data:/app/data
 
 networks:
   mpc_net:

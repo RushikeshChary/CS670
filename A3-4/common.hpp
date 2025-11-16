@@ -78,7 +78,7 @@ inline std::vector<int32_t> rotate_cyclic(const std::vector<int32_t>& v, int shi
     int n = static_cast<int>(v.size());
     if (n == 0) return {};
     // normalize shift to [0, n-1]
-    shift = ((shift % n) + n) % n;
+    shift = (shift + n) % n;
     std::vector<int32_t> out(n);
     for (int i = 0; i < n; ++i) out[(i + shift) % n] = v[i];
     return out;
@@ -222,6 +222,18 @@ awaitable<void> recv_vector2d(tcp::socket& sock, std::vector<std::vector<int32_t
             co_await boost::asio::async_read(sock, boost::asio::buffer(row.data(), row.size() * sizeof(int32_t)), use_awaitable);
         }
     }
+    co_return;
+}
+
+// Send a boolean value
+awaitable<void> send_bool(tcp::socket& sock, bool b) {
+    co_await boost::asio::async_write(sock, boost::asio::buffer(&b, sizeof(b)), use_awaitable);
+    co_return;
+}
+
+// Receive a boolean value
+awaitable<void> recv_bool(tcp::socket& sock, bool& b) {
+    co_await boost::asio::async_read(sock, boost::asio::buffer(&b, sizeof(b)), use_awaitable);
     co_return;
 }
 
