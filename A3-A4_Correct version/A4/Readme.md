@@ -83,3 +83,13 @@ g++ -std=c++20 check.cpp -o check
 - Logs and output files are written into `files/appfiles/output.txt` after execution, which can be checked via `check.cpp`.
 
 ***
+
+## Plots:
+I used the script benchmark_1.sh and generated datapoints in the csv : timing_results_independent.csv file, which then I used to plot these plots.
+Checkout the benchmak.log file to get more details of these datapoints.
+
+The following is the execution time plot of n, m, k: (varying other one of them while keeping other fixed)
+![alt text](execution_time_plot.png "Title")
+
+The following is the plot to understand complexity:
+![alt text](complexity_analysis.png "Title")
