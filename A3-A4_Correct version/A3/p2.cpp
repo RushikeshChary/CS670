@@ -2,7 +2,6 @@
 
 using boost::asio::ip::tcp;
 
-// note: function names and helpers are updated to match the renamed shares.h API
 boost::asio::awaitable<void> handle_client(tcp::socket socket, std::string name,
                                            std::vector<std::vector<long long>> &x_k, std::vector<std::vector<long long>> &y_k,
                                            std::vector<long long> gamma_k, std::vector<std::vector<long long>> &x_n,
@@ -43,7 +42,7 @@ void run_in_parallel(boost::asio::io_context& io, Fs&&... funcs) {
 
 int main() {
     try {
-        std::string query_file = "/app/files/q1.txt";
+        std::string query_file = "/app/files/input1.txt";
         std::ifstream ifs(query_file);
         if (!ifs) {
             std::cerr << "Error opening file for reading: " << query_file << std::endl;

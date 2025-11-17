@@ -43,7 +43,7 @@ void run_in_parallel(boost::asio::io_context& io, Fs&&... funcs) {
 
 int main() {
     try {
-        std::string query_file = "/app/files/q1.txt";
+        std::string query_file = "/app/files/input1.txt";
         std::ifstream ifs(query_file);
         if (!ifs) {
             std::cerr << "Error opening file for reading: " << query_file << std::endl;

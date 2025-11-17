@@ -89,10 +89,10 @@ awaitable<void> run(boost::asio::io_context& io_context) {
 
     std::string query_file, output_file;
 #ifdef ROLE_p0
-    query_file = "/app/files/q0.txt";
+    query_file = "/app/files/input0.txt";
     output_file = "/app/files/output0.txt";
 #else
-    query_file = "/app/files/q1.txt";
+    query_file = "/app/files/input1.txt";
     output_file = "/app/files/output1.txt";
 #endif
 
