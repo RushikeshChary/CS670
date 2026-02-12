@@ -1,4 +1,6 @@
 # CS670: Cryptographic Techniques for Privacy Preservation
+This repo contains lectures, quiz and my implmentation of Secure Recommendation System (through assignments).
+These assignments lead to building a Secure Recommendation System at the end of A4.
 
 # Some Reference Books
 [Pragmatic MPC](https://securecomputation.org)
@@ -8,8 +10,6 @@
 - [NPTEL, Ashish Chowdhury](https://onlinecourses.nptel.ac.in/noc21_cs91/preview)
 
 
-## Quizzes
-- First Quiz will take place on 28th August, 2025, Thursday, 9 AM. The venue will be RM101. 
 ## Schedule
 
 | Date       | Topic                  | Lecture Notes             | Optional Reading/Viewing         |
